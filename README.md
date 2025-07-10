@@ -6,7 +6,7 @@ A browser-based physics simulation that models **1D elastic collisions** between
 
 ## 🖼️ Preview
 
-![Preview Screenshot](preview.png)  
+![Preview Screenshot](img.png)  
 *(Add a screenshot of your simulation running here)*
 
 ---
