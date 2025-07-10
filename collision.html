@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>1D Elastic Collision Simulator</title>
+  <style>
+    canvas {
+      border: 2px solid black;
+      background: #e0f7fa;
+      display: block;
+      margin: 20px auto;
+    }
+    .controls {
+      text-align: center;
+      font-family: Arial;
+    }
+    label {
+      margin: 0 10px;
+    }
+  </style>
+</head>
+<body>
+
+<canvas id="canvas" width="800" height="200"></canvas>
+
+<div class="controls">
+  <label>Mass 1: <input type="number" id="mass1" value="5" /></label>
+  <label>Velocity 1: <input type="number" id="vel1" value="2" /></label>
+  <br><br>
+  <label>Mass 2: <input type="number" id="mass2" value="10" /></label>
+  <label>Velocity 2: <input type="number" id="vel2" value="-1" /></label>
+  <br><br>
+  <button onclick="startSimulation()">Start Simulation</button>
+</div>
+
+<script>
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+
+// Ball/Boat objects
+let ball1, ball2;
+let m1, m2;
+let interval;
+
+// Function to draw a ball (can be imagined as boat)
+function drawBall(ball) {
+  ctx.beginPath();
+  ctx.rect(ball.x - ball.radius, ball.y - ball.radius, ball.radius * 2, ball.radius * 2);
+  ctx.fillStyle = ball.color;
+  ctx.fill();
+  ctx.stroke();
+}
+
+function detectBallCollision(b1, b2) {
+  return Math.abs(b1.x - b2.x) <= b1.radius + b2.radius;
+}
+
+function handleBallCollision() {
+  // 1D Elastic Collision Equations
+  let u1 = ball1.vx;
+  let u2 = ball2.vx;
+
+  let v1 = ((m1 - m2) * u1 + 2 * m2 * u2) / (m1 + m2);
+  let v2 = ((m2 - m1) * u2 + 2 * m1 * u1) / (m1 + m2);
+
+  ball1.vx = v1;
+  ball2.vx = v2;
+}
+
+function handleWallCollision(ball) {
+  if (ball.x - ball.radius <= 0 || ball.x + ball.radius >= canvas.width) {
+    ball.vx *= -1;
+  }
+}
+
+function update() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  // Update positions
+  ball1.x += ball1.vx;
+  ball2.x += ball2.vx;
+
+  // Wall bounce
+  handleWallCollision(ball1);
+  handleWallCollision(ball2);
+
+  // Collision with each other
+  if (detectBallCollision(ball1, ball2)) {
+    handleBallCollision();
+  }
+
+  // Draw updated positions
+  drawBall(ball1);
+  drawBall(ball2);
+}
+
+function startSimulation() {
+  clearInterval(interval);
+
+  // Read input
+  m1 = parseFloat(document.getElementById("mass1").value);
+  m2 = parseFloat(document.getElementById("mass2").value);
+  const v1 = parseFloat(document.getElementById("vel1").value);
+  const v2 = parseFloat(document.getElementById("vel2").value);
+
+  // Initialize boats (mass = size for visual)
+  ball1 = {
+    x: 200,
+    y: 100,
+    radius: 20 + m1 * 2,  // more mass = bigger
+    vx: v1,
+    color: "blue"
+  };
+
+  ball2 = {
+    x: 600,
+    y: 100,
+    radius: 20 + m2 * 2,
+    vx: v2,
+    color: "red"
+  };
+
+  interval = setInterval(update, 30);
+}
+</script>
+
+</body>
+</html>
